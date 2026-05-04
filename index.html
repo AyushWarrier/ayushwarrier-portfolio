@@ -618,6 +618,15 @@ a{text-decoration:none;color:inherit}
   content:'';position:absolute;inset:0;
   background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(196,98,45,.03) 10px,rgba(196,98,45,.03) 20px);
 }
+/* When a real image is dropped in, it fills the container completely */
+.pm-img-placeholder img {
+  position:absolute;inset:0;
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:top;
+  border-radius:16px;
+  display:block;
+}
 .pm-img-ph-icon{font-size:32px;opacity:.3}
 .pm-img-ph-text{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;text-align:center;position:relative}
 .pm-img-ph-hint{font-family:'Geist Mono',monospace;font-size:9px;color:var(--acc);letter-spacing:.5px;position:relative;opacity:.7}
@@ -917,14 +926,14 @@ footer{border-top:1px solid var(--bdr);padding:28px 64px;display:flex;align-item
         </ul>
 
         <div class="pm-img-placeholder" style="margin-top:32px">
-          <img src="KLYMB/onboarding.png" alt="Onboarding Pages">
+          <img src="klymb-onboarding.png" alt="Onboarding Pages">
         </div>
         <div class="pm-img-half">
           <div class="pm-img-placeholder small">
-            <img src="KLYMB/share-cards.png" alt="Share Cards">
+            <img src="klymb-sharecards.png" alt="Share Cards">
           </div>
           <div class="pm-img-placeholder small">
-            <img src="KLYMB/icons.png" alt="Icons">
+            <img src="klymb-icons.png" alt="Icons">
           </div>
         </div>
       </div>
@@ -952,7 +961,7 @@ footer{border-top:1px solid var(--bdr);padding:28px 64px;display:flex;align-item
         <p class="pm-sec-p">Every screen was stress-tested for the hardest moment — not when you're motivated and energized, but when you barely picked up your phone. That meant reducing friction to near zero: one-tap logging, no onboarding friction after day one, progress that feels good even when it's incomplete.</p>
         <p class="pm-sec-p">The Share Cards feature came from a specific observation: people screenshot their progress and send it to friends anyway. Why not make that intentional? A designed artifact that's worth sharing — not just a data dump.</p>
         <div class="pm-img-placeholder">
-          <img src="KLYMB/color-palette.png" alt="Color Palette">
+          <img src="klymb-palette.png" alt="Color Palette">
         </div>
       </div>
 
@@ -1028,20 +1037,14 @@ footer{border-top:1px solid var(--bdr);padding:28px 64px;display:flex;align-item
         </ul>
 
         <div class="pm-img-placeholder" style="margin-top:32px">
-          <div class="pm-img-ph-icon">🌐</div>
-          <div class="pm-img-ph-text">Website UI — Landing Page</div>
-          <div class="pm-img-ph-hint">→ Replace with: screenshot from rivant.in or your Figma frames</div>
+          <img src="rivant-website.png" alt="Rivant Website UI">
         </div>
         <div class="pm-img-half">
           <div class="pm-img-placeholder small">
-            <div class="pm-img-ph-icon">📐</div>
-            <div class="pm-img-ph-text">Wireframes</div>
-            <div class="pm-img-ph-hint">→ Replace with: wireframe screens</div>
+            <img src="rivant-wireframes.png" alt="Wireframes">
           </div>
           <div class="pm-img-placeholder small">
-            <div class="pm-img-ph-icon">✦</div>
-            <div class="pm-img-ph-text">Brand Identity Assets</div>
-            <div class="pm-img-ph-hint">→ Replace with: brand elements</div>
+            <img src="rivant-brand.png" alt="Brand Identity Assets">
           </div>
         </div>
       </div>
@@ -1131,20 +1134,14 @@ footer{border-top:1px solid var(--bdr);padding:28px 64px;display:flex;align-item
         </ul>
 
         <div class="pm-img-placeholder" style="margin-top:32px">
-          <div class="pm-img-ph-icon">⚖️</div>
-          <div class="pm-img-ph-text">Website UI — Landing Page</div>
-          <div class="pm-img-ph-hint">→ Replace with: screenshot from wojewodka.eu or your Figma</div>
+          <img src="woj-website.png" alt="Wojewodka Website UI">
         </div>
         <div class="pm-img-half">
           <div class="pm-img-placeholder small">
-            <div class="pm-img-ph-icon">📋</div>
-            <div class="pm-img-ph-text">Practice Areas Page</div>
-            <div class="pm-img-ph-hint">→ Replace with: services page screenshot</div>
+            <img src="woj-services.png" alt="Practice Areas Page">
           </div>
           <div class="pm-img-placeholder small">
-            <div class="pm-img-ph-icon">📱</div>
-            <div class="pm-img-ph-text">Mobile Responsive</div>
-            <div class="pm-img-ph-hint">→ Replace with: mobile mockup</div>
+            <img src="woj-mobile.png" alt="Mobile Responsive">
           </div>
         </div>
       </div>
@@ -1233,20 +1230,14 @@ footer{border-top:1px solid var(--bdr);padding:28px 64px;display:flex;align-item
         </ul>
 
         <div class="pm-img-placeholder" style="margin-top:32px">
-          <div class="pm-img-ph-icon">🧘</div>
-          <div class="pm-img-ph-text">Responsive Website Designs</div>
-          <div class="pm-img-ph-hint">→ Replace with: Behance case study screenshot or Figma export</div>
+          <img src="ropan-website.png" alt="Ropan Website Design">
         </div>
         <div class="pm-img-half">
           <div class="pm-img-placeholder small">
-            <div class="pm-img-ph-icon">🖥️</div>
-            <div class="pm-img-ph-text">Desktop View</div>
-            <div class="pm-img-ph-hint">→ Replace with: desktop screen</div>
+            <img src="ropan-desktop.png" alt="Desktop View">
           </div>
           <div class="pm-img-placeholder small">
-            <div class="pm-img-ph-icon">📱</div>
-            <div class="pm-img-ph-text">Mobile View</div>
-            <div class="pm-img-ph-hint">→ Replace with: mobile screen</div>
+            <img src="ropan-mobile.png" alt="Mobile View">
           </div>
         </div>
       </div>
