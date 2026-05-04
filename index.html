@@ -1,1 +1,1887 @@
 <!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayush Warrier — Product Designer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500&family=Geist+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<style>
+
+/* ════════════════════════════════════════
+   TOKENS
+════════════════════════════════════════ */
+:root {
+  --bg:     #F6F3EE;
+  --bg2:    #EDEAE3;
+  --ink:    #191714;
+  --ink2:   #7A766F;
+  --ink3:   #C0BBB3;
+  --acc:    #C4622D;
+  --acc2:   rgba(196,98,45,.1);
+  --bdr:    rgba(25,23,20,.08);
+  --bdr2:   rgba(196,98,45,.2);
+  --surface:#FFFFFF;
+  --t:      .5s cubic-bezier(.16,1,.3,1);
+  --tf:     .2s cubic-bezier(.16,1,.3,1);
+}
+[data-theme="dark"] {
+  --bg:     #131110;
+  --bg2:    #1B1916;
+  --ink:    #EDE8DF;
+  --ink2:   #7A766F;
+  --ink3:   #3A3730;
+  --bdr:    rgba(237,232,223,.07);
+  --bdr2:   rgba(196,98,45,.28);
+  --surface:#1F1D1A;
+  --acc2:   rgba(196,98,45,.14);
+}
+
+/* ════════════════════════════════════════
+   RESET
+════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-snap-type:y mandatory}
+body{
+  font-family:'Geist',sans-serif;
+  background:var(--bg);
+  color:var(--ink);
+  overflow-x:hidden;
+  cursor:none;
+  transition:background .5s,color .5s;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--acc);color:#fff}
+a{text-decoration:none;color:inherit}
+
+/* ════════════════════════════════════════
+   CURSOR
+════════════════════════════════════════ */
+#cur {
+  width:12px;height:12px;
+  background:var(--acc);
+  border-radius:50%;
+  position:fixed;top:0;left:0;
+  pointer-events:none;z-index:9999;
+  transform:translate(-50%,-50%);
+  transition:width .25s,height .25s,background .25s,border-radius .25s,opacity .2s;
+  mix-blend-mode:multiply;
+}
+[data-theme="dark"] #cur{mix-blend-mode:screen}
+#cur.hov{width:56px;height:56px;opacity:.35;border-radius:50%}
+#cur.txt{width:2px;height:22px;border-radius:2px;opacity:.7}
+@media(hover:none){#cur{display:none}}
+
+/* ════════════════════════════════════════
+   DOCK NAV
+════════════════════════════════════════ */
+.dock {
+  position:fixed;bottom:32px;left:0;right:0;
+  margin-left:auto;margin-right:auto;
+  width:fit-content;
+  z-index:500;
+  display:flex;align-items:center;gap:2px;
+  background:var(--surface);
+  border:1px solid var(--bdr);
+  border-radius:100px;
+  padding:6px 8px;
+  box-shadow:0 12px 40px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.04);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  transition:background .5s,border .5s;
+  opacity:0;animation:fadeup .6s 1.6s forwards;
+  white-space:nowrap;
+  max-width:calc(100vw - 32px);
+}
+[data-theme="dark"] .dock{box-shadow:0 12px 40px rgba(0,0,0,.5)}
+.di {
+  width:36px;height:36px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;
+  color:var(--ink3);
+  cursor:none;
+  transition:all var(--tf);
+  position:relative;
+  flex-shrink:0;
+}
+.di svg { width:16px;height:16px;stroke-width:1.75; }
+.di:hover,.di.on { background:var(--bg2); color:var(--acc); }
+.di-tip {
+  position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(4px);
+  background:var(--ink);color:var(--bg);
+  font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;
+  padding:4px 10px;border-radius:100px;
+  white-space:nowrap;opacity:0;pointer-events:none;
+  transition:all var(--tf);
+}
+.di:hover .di-tip{opacity:1;transform:translateX(-50%) translateY(0)}
+.d-sep{width:1px;height:24px;background:var(--bdr);margin:0 4px;flex-shrink:0}
+.d-theme{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--ink2);cursor:none;transition:all var(--tf);border:none;background:transparent;flex-shrink:0;}
+.d-theme svg{width:16px;height:16px;stroke-width:1.75;}
+.d-theme:hover{background:var(--bg2);color:var(--acc)}
+
+@media(max-width:480px){
+  .dock{bottom:16px;padding:5px 6px;gap:0}
+  .di{width:30px;height:30px;font-size:12px}
+  .d-theme{width:30px;height:30px;font-size:12px}
+  .d-sep{margin:0 2px}
+  .di-tip{display:none}
+}
+
+/* ════════════════════════════════════════
+   SCENES (full-screen sections)
+════════════════════════════════════════ */
+.scene {
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:80px 64px 120px;
+  scroll-snap-align:start;
+  position:relative;
+  overflow:hidden;
+}
+
+/* Chapter label */
+.ch-label {
+  font-family:'Geist Mono',monospace;
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--ink3);
+  margin-bottom:48px;
+  display:flex;align-items:center;gap:12px;
+  opacity:0;animation:fadeup .6s forwards;
+}
+.ch-num{color:var(--acc)}
+
+/* ════════════════════════════════════════
+   SCENE 1 — HERO
+════════════════════════════════════════ */
+#s-hero {
+  background:var(--bg);
+  display:grid;
+  grid-template-columns:1fr 460px;
+  align-items:center;
+  column-gap:40px;
+}
+.hero-left{display:flex;flex-direction:column;grid-column:1}
+.hero-right{
+  grid-column:2;
+  display:flex;align-items:stretch;justify-content:center;
+  opacity:0;animation:fadeup .9s 1s forwards;
+  width:100%;
+}
+
+.hero-name {
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(72px,13vw,180px);
+  line-height:.9;
+  letter-spacing:-4px;
+  color:var(--ink);
+  margin-bottom:32px;
+  overflow:hidden;
+}
+.hero-name-line {
+  display:block;
+  opacity:0;
+  transform:translateY(60px);
+  animation:slideup .9s cubic-bezier(.16,1,.3,1) forwards;
+}
+.hero-name-line:nth-child(1){animation-delay:.2s}
+.hero-name-line:nth-child(2){animation-delay:.35s;color:var(--acc);font-style:italic}
+
+.hero-role-row {
+  display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+  margin-bottom:60px;
+  opacity:0;animation:fadeup .7s .65s forwards;
+}
+.hero-role {
+  font-family:'Geist Mono',monospace;
+  font-size:12px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--ink2);
+}
+.hero-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--acc);flex-shrink:0;
+}
+
+.hero-statement {
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(20px,3vw,32px);
+  line-height:1.3;
+  color:var(--ink2);
+  max-width:560px;
+  font-style:italic;
+  opacity:0;animation:fadeup .7s .8s forwards;
+  margin-bottom:48px;
+}
+.hero-statement strong{color:var(--ink);font-style:normal;font-weight:400}
+
+.hero-ctas {
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  opacity:0;animation:fadeup .7s .95s forwards;
+}
+.btn {
+  padding:13px 28px;border-radius:100px;
+  font-size:13px;font-weight:500;letter-spacing:.3px;
+  cursor:none;transition:all var(--tf);
+  display:inline-flex;align-items:center;gap:8px;
+}
+.btn-solid{background:var(--acc);color:#fff}
+.btn-solid:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(196,98,45,.3)}
+.btn-ghost{border:1px solid var(--bdr);color:var(--ink2)}
+.btn-ghost:hover{border-color:var(--bdr2);color:var(--acc)}
+
+/* Availability pill */
+.avail {
+  position:absolute;top:48px;right:64px;
+  display:flex;align-items:center;gap:8px;
+  padding:8px 16px;border-radius:100px;
+  border:1px solid var(--bdr);
+  background:var(--surface);
+  font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:1px;
+  color:var(--ink2);
+  opacity:0;animation:fadeup .6s 1.2s forwards;
+  cursor:none;transition:all var(--tf);
+}
+.avail:hover{border-color:var(--bdr2);color:var(--acc)}
+.avail-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:#4CAF50;
+  box-shadow:0 0 6px rgba(76,175,80,.5);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 6px rgba(76,175,80,.5)}50%{box-shadow:0 0 12px rgba(76,175,80,.8)}}
+
+/* Scroll nudge — left side below CTAs */
+.scroll-nudge{
+  position:absolute;bottom:48px;left:64px;
+  font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;
+  text-transform:uppercase;color:var(--ink3);
+  display:flex;align-items:center;gap:8px;
+  opacity:0;animation:fadeup .6s 1.5s forwards;
+}
+.sn-line{
+  width:1px;height:36px;
+  background:linear-gradient(to bottom,var(--acc) 0%,transparent 100%);
+  animation:snpulse 2.5s 2s infinite;
+}
+@keyframes snpulse{0%,100%{opacity:1;height:36px}50%{opacity:.4;height:24px}}
+
+/* ════════════════════════════════════════
+   HERO FLOATING CARDS — ORGANIC / MESSY LAYOUT
+════════════════════════════════════════ */
+.hero-cards{
+  position:relative;
+  width:100%;
+  height:520px;
+  pointer-events:none;
+}
+.fcard{
+  background:var(--surface);
+  border:1px solid var(--bdr);
+  padding:18px 20px;
+  box-shadow:0 16px 48px rgba(0,0,0,.09),0 2px 8px rgba(0,0,0,.04);
+  pointer-events:all;
+  cursor:none;
+  transition:background .5s,border .5s,box-shadow .5s;
+  opacity:0;
+  position:absolute;
+  overflow:hidden;
+}
+[data-theme="dark"] .fcard{box-shadow:0 16px 48px rgba(0,0,0,.45)}
+.fcard:hover{box-shadow:0 24px 64px rgba(0,0,0,.16)}
+[data-theme="dark"] .fcard:hover{box-shadow:0 24px 64px rgba(0,0,0,.6)}
+
+/* Each card gets its own shape, position, rotation, size */
+.fcard-music {
+  width:220px;
+  top:0; left:0;
+  border-radius:20px 20px 20px 8px;
+  transform:rotate(-2.5deg);
+  animation:fcardIn .7s 1.1s cubic-bezier(.16,1,.3,1) forwards, floatA 5s 2s ease-in-out infinite;
+  z-index:3;
+}
+.fcard-music:hover { transform:rotate(-2.5deg) translateY(-6px) scale(1.02) !important; }
+
+.fcard-building {
+  width:200px;
+  top:10px; right:0;
+  border-radius:8px 20px 20px 20px;
+  transform:rotate(2deg);
+  animation:fcardIn .7s 1.3s cubic-bezier(.16,1,.3,1) forwards, floatB 6s 2.3s ease-in-out infinite;
+  z-index:2;
+}
+.fcard-building:hover { transform:rotate(2deg) translateY(-6px) scale(1.02) !important; }
+
+.fcard-tools {
+  width:190px;
+  top:195px; left:30px;
+  border-radius:20px 8px 20px 20px;
+  transform:rotate(1.5deg);
+  animation:fcardIn .7s 1.5s cubic-bezier(.16,1,.3,1) forwards, floatC 7s 2.6s ease-in-out infinite;
+  z-index:3;
+}
+.fcard-tools:hover { transform:rotate(1.5deg) translateY(-6px) scale(1.02) !important; }
+
+.fcard-location {
+  width:185px;
+  top:200px; right:20px;
+  border-radius:20px 20px 8px 20px;
+  transform:rotate(-1.8deg);
+  animation:fcardIn .7s 1.7s cubic-bezier(.16,1,.3,1) forwards, floatA 5.5s 2.9s ease-in-out infinite;
+  z-index:2;
+}
+.fcard-location:hover { transform:rotate(-1.8deg) translateY(-6px) scale(1.02) !important; }
+
+.fcard-mood {
+  width:200px;
+  top:370px; left:10px;
+  border-radius:20px 8px 20px 20px;
+  transform:rotate(2.2deg);
+  animation:fcardIn .7s 1.9s cubic-bezier(.16,1,.3,1) forwards, floatB 6.5s 3.2s ease-in-out infinite;
+  z-index:3;
+}
+.fcard-mood:hover { transform:rotate(2.2deg) translateY(-6px) scale(1.02) !important; }
+
+.fcard-open {
+  width:178px;
+  top:375px; right:30px;
+  border-radius:8px 20px 20px 20px;
+  transform:rotate(-1.2deg);
+  animation:fcardIn .7s 2.1s cubic-bezier(.16,1,.3,1) forwards, floatC 7.5s 3.5s ease-in-out infinite;
+  z-index:2;
+}
+.fcard-open:hover { transform:rotate(-1.2deg) translateY(-6px) scale(1.02) !important; }
+
+@keyframes fcardIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes floatA{0%,100%{transform:translateY(0px)}50%{transform:translateY(-10px)}}
+@keyframes floatB{0%,100%{transform:translateY(0px)}50%{transform:translateY(-8px)}}
+@keyframes floatC{0%,100%{transform:translateY(0px)}50%{transform:translateY(-12px)}}
+
+/* music card */
+.fc-music-top{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.fc-live-dot{width:6px;height:6px;border-radius:50%;background:#4CAF50;box-shadow:0 0 6px rgba(76,175,80,.6);animation:pulse 2s infinite;flex-shrink:0}
+.fc-live-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3)}
+.fc-music-body{display:flex;align-items:center;gap:12px}
+.fc-album{
+  width:44px;height:44px;border-radius:10px;flex-shrink:0;
+  background:linear-gradient(135deg,#5C5470,#352F44);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;position:relative;overflow:hidden;
+}
+.fc-album::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent)}
+.fc-track{flex:1;min-width:0}
+.fc-track-name{font-size:14px;font-weight:500;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.fc-track-artist{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:.3px}
+.fc-play{width:30px;height:30px;border-radius:50%;background:var(--acc);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fc-play-bar{display:flex;gap:2px;align-items:center;height:12px}
+.fc-bar{width:2px;border-radius:2px;background:#fff;animation:soundbar var(--spd,0.6s) ease-in-out infinite alternate}
+.fc-bar:nth-child(1){height:4px;--spd:.5s}.fc-bar:nth-child(2){height:10px;--spd:.7s}.fc-bar:nth-child(3){height:6px;--spd:.4s}.fc-bar:nth-child(4){height:12px;--spd:.6s}.fc-bar:nth-child(5){height:5px;--spd:.8s}
+@keyframes soundbar{to{height:3px;opacity:.5}}
+
+/* building card */
+.fc-building-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.fc-pulse{width:6px;height:6px;border-radius:50%;background:var(--acc);animation:pulse 1.5s infinite;flex-shrink:0}
+.fc-building-name{font-size:18px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.fc-building-role{font-family:'Geist Mono',monospace;font-size:10px;color:var(--acc);letter-spacing:.5px;margin-bottom:12px}
+.fc-progress{margin-top:4px}
+.fc-prog-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.fc-prog-text{font-family:'Geist Mono',monospace;font-size:9px;color:var(--ink3);letter-spacing:.5px}
+.fc-prog-pct{font-family:'Geist Mono',monospace;font-size:9px;color:var(--acc)}
+.fc-prog-track{height:3px;background:var(--bdr);border-radius:100px;overflow:hidden}
+.fc-prog-fill{height:100%;background:var(--acc);border-radius:100px;width:0;animation:progfill 1.5s 2s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes progfill{to{width:68%}}
+
+/* location card */
+.fc-loc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.fc-loc-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3)}
+.fc-loc-flag{font-size:16px}
+.fc-loc-city{font-size:17px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.fc-loc-time{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink2);letter-spacing:1px}
+
+/* tools card */
+.fc-tools-label{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.fc-tool-chips{display:flex;flex-wrap:wrap;gap:5px}
+.fc-chip{font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:.3px;padding:4px 8px;border-radius:100px;background:var(--bg2);border:1px solid var(--bdr);color:var(--ink2);transition:all .2s}
+.fcard:hover .fc-chip{border-color:var(--bdr2);color:var(--acc)}
+
+/* ════════════════════════════════════════
+   SCENE 2 — PHILOSOPHY
+════════════════════════════════════════ */
+#s-about { background:var(--bg2) }
+.phil-grid {display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.phil-words {display:flex;flex-direction:column;gap:0}
+.phil-word {
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(48px,7vw,96px);
+  line-height:.95;letter-spacing:-2px;
+  color:var(--ink3);transition:color .3s,transform .3s;cursor:none;
+  position:relative;padding:8px 0;border-bottom:1px solid var(--bdr);
+}
+.phil-word:first-child{border-top:1px solid var(--bdr)}
+.phil-word:hover{color:var(--ink);transform:translateX(12px)}
+.phil-word em{font-style:italic;color:var(--acc)}
+.phil-word .pw-sub{position:absolute;right:0;top:50%;transform:translateY(-50%);font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);opacity:0;transition:opacity .3s}
+.phil-word:hover .pw-sub{opacity:1}
+.phil-right{display:flex;flex-direction:column;gap:32px}
+.phil-para{font-size:16px;line-height:1.75;color:var(--ink2);position:relative;padding-left:20px}
+.phil-para::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:2px;background:var(--acc);opacity:0;transition:opacity .3s,height .3s;height:0}
+.phil-para.vis::before{opacity:1;height:auto}
+.phil-para strong{color:var(--ink);font-weight:500}
+
+/* ════════════════════════════════════════
+   SCENE 3 — WORK
+════════════════════════════════════════ */
+#s-work { background:var(--bg) }
+.work-intro {font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,48px);color:var(--ink2);font-style:italic;margin-bottom:64px;letter-spacing:-.5px}
+.work-intro strong{color:var(--ink);font-style:normal;font-weight:400}
+.proj-list { display:flex;flex-direction:column;gap:0 }
+.pj {
+  display:grid;grid-template-columns:48px 1fr auto;gap:24px;align-items:center;
+  padding:28px 0;border-bottom:1px solid var(--bdr);
+  cursor:none;position:relative;overflow:hidden;
+  transition:padding-left .3s cubic-bezier(.16,1,.3,1);
+}
+.pj:first-child{border-top:1px solid var(--bdr)}
+.pj::before{content:'';position:absolute;inset:0;background:var(--acc2);transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.16,1,.3,1);z-index:0}
+.pj:hover::before{transform:scaleX(1)}
+.pj:hover{padding-left:8px}
+.pj>*{position:relative;z-index:1}
+.pj-idx{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:1px;transition:color .2s}
+.pj:hover .pj-idx{color:var(--acc)}
+.pj-info{display:flex;flex-direction:column;gap:6px}
+.pj-title{font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,52px);line-height:1;letter-spacing:-1px;transition:color .2s}
+.pj:hover .pj-title{color:var(--acc)}
+.pj-type{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.5px}
+.pj-arrow{font-size:24px;color:var(--ink3);transition:transform .3s,color .2s;line-height:1}
+.pj:hover .pj-arrow{transform:translate(4px,-4px);color:var(--acc)}
+
+/* ════════════════════════════════════════
+   SCENE 4 — TIMELINE
+════════════════════════════════════════ */
+#s-exp { background:var(--bg2) }
+.exp-statement {font-family:'Instrument Serif',serif;font-size:clamp(28px,4vw,48px);color:var(--ink2);font-style:italic;margin-bottom:64px;letter-spacing:-.5px}
+.exp-statement strong{color:var(--ink);font-style:normal;font-weight:400}
+.tl { display:flex;flex-direction:column;gap:0 }
+.tl-item {
+  display:grid;grid-template-columns:180px 1fr;gap:40px;
+  padding:32px 0;border-bottom:1px solid var(--bdr);
+  cursor:none;transition:padding-left .3s cubic-bezier(.16,1,.3,1);
+  position:relative;overflow:hidden;
+}
+.tl-item::before{content:'';position:absolute;inset:0;background:var(--acc2);transform:scaleX(0);transform-origin:left;transition:transform .4s cubic-bezier(.16,1,.3,1);z-index:0}
+.tl-item:hover::before{transform:scaleX(1)}
+.tl-item:hover{padding-left:8px}
+.tl-item>*{position:relative;z-index:1}
+.tl-item:first-child{border-top:1px solid var(--bdr)}
+.tl-date{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.5px;padding-top:6px;line-height:1.6}
+.tl-now{display:inline-block;margin-top:6px;padding:2px 8px;border-radius:100px;background:var(--acc2);color:var(--acc);border:1px solid var(--bdr2);font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.tl-right { display:flex;flex-direction:column;gap:4px }
+.tl-role{font-size:22px;font-weight:500;transition:color .2s}
+.tl-item:hover .tl-role{color:var(--acc)}
+.tl-co{font-family:'Geist Mono',monospace;font-size:12px;color:var(--acc);letter-spacing:.5px}
+.tl-one{font-size:14px;color:var(--ink2);line-height:1.6;margin-top:6px}
+.tl-expand{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:1px;margin-top:8px;display:inline-flex;align-items:center;gap:6px;transition:color .2s}
+.tl-item:hover .tl-expand{color:var(--acc)}
+
+/* Skills chips */
+.skills-wrap{margin-top:64px}
+.skills-title{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--ink3);margin-bottom:20px}
+.skill-chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:7px 16px;border-radius:100px;border:1px solid var(--bdr);font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.5px;color:var(--ink3);cursor:none;transition:all var(--tf)}
+.chip:hover{border-color:var(--bdr2);color:var(--acc);background:var(--acc2)}
+
+/* ════════════════════════════════════════
+   SCENE 5 — CONTACT
+════════════════════════════════════════ */
+#s-contact { background:var(--bg); display:flex; flex-direction:column; justify-content:flex-start; }
+#s-contact > div { display:flex; flex-direction:column; flex:1; height:100%; }
+.contact-big {
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(60px,10vw,140px);
+  line-height:.92;
+  letter-spacing:-3px;
+  margin-bottom:40px;
+}
+.contact-big em{color:var(--acc);font-style:italic}
+.contact-meta{margin-bottom:48px}
+.contact-tagline{font-size:17px;line-height:1.75;color:var(--ink2);max-width:540px}
+.contact-actions{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px}
+.soc-row{display:flex;flex-wrap:wrap;gap:8px}
+.soc{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:100px;border:1px solid var(--bdr);font-family:'Geist Mono',monospace;font-size:11px;letter-spacing:.5px;color:var(--ink2);cursor:none;transition:all var(--tf)}
+.soc:hover{border-color:var(--bdr2);color:var(--acc)}
+.soc svg{width:12px;height:12px;flex-shrink:0}
+
+/* ════════════════════════════════════════
+   FULLSCREEN PROJECT MODAL
+════════════════════════════════════════ */
+.proj-modal-ov{
+  display:none;position:fixed;inset:0;
+  background:var(--bg);
+  z-index:800;
+  overflow-y:auto;
+  opacity:0;
+  transition:opacity .4s cubic-bezier(.16,1,.3,1);
+}
+.proj-modal-ov.show{display:block;opacity:0}
+.proj-modal-ov.visible{opacity:1}
+
+.pm-close{
+  position:fixed;top:32px;right:40px;
+  width:48px;height:48px;border-radius:50%;
+  background:var(--bg2);border:1px solid var(--bdr);
+  color:var(--ink2);font-size:18px;cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--tf);z-index:810;
+}
+.pm-close:hover{border-color:var(--bdr2);color:var(--acc);transform:rotate(90deg)}
+
+.pm-inner{
+  max-width:900px;margin:0 auto;
+  padding:100px 64px 120px;
+}
+
+.pm-meta{
+  font-family:'Geist Mono',monospace;font-size:10px;
+  letter-spacing:3px;text-transform:uppercase;color:var(--acc);
+  margin-bottom:16px;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .6s .1s,transform .6s .1s cubic-bezier(.16,1,.3,1);
+}
+.pm-title{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(52px,9vw,120px);
+  line-height:.9;letter-spacing:-3px;
+  margin-bottom:12px;
+  opacity:0;transform:translateY(30px);
+  transition:opacity .7s .15s,transform .7s .15s cubic-bezier(.16,1,.3,1);
+}
+.pm-sub{
+  font-family:'Geist Mono',monospace;font-size:13px;
+  color:var(--ink2);letter-spacing:.5px;
+  padding-bottom:40px;border-bottom:1px solid var(--bdr);
+  margin-bottom:64px;
+  opacity:0;transform:translateY(20px);
+  transition:opacity .6s .2s,transform .6s .2s cubic-bezier(.16,1,.3,1);
+}
+.proj-modal-ov.visible .pm-meta,
+.proj-modal-ov.visible .pm-title,
+.proj-modal-ov.visible .pm-sub{opacity:1;transform:none}
+
+/* quick stats row */
+.pm-stats{
+  display:flex;gap:12px;flex-wrap:wrap;margin-bottom:64px;
+}
+.pm-stat{
+  padding:20px 24px;background:var(--bg2);
+  border:1px solid var(--bdr);border-radius:16px;
+  display:flex;flex-direction:column;gap:4px;min-width:120px;
+  flex:1;
+}
+.pm-stat-val{font-family:'Instrument Serif',serif;font-size:32px;color:var(--acc);line-height:1}
+.pm-stat-lbl{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:.5px}
+
+/* content blocks */
+.pm-body{display:flex;flex-direction:column;gap:0}
+.pm-section{padding:48px 0;border-bottom:1px solid var(--bdr)}
+.pm-section:last-of-type{border-bottom:none}
+.pm-sec-label{
+  font-family:'Geist Mono',monospace;font-size:10px;
+  letter-spacing:3px;text-transform:uppercase;color:var(--acc);
+  margin-bottom:16px;
+}
+.pm-sec-h{
+  font-family:'Instrument Serif',serif;
+  font-size:clamp(28px,4vw,40px);
+  line-height:1.1;letter-spacing:-1px;
+  margin-bottom:20px;
+}
+.pm-sec-p{font-size:16px;line-height:1.85;color:var(--ink2);max-width:700px}
+.pm-sec-p+.pm-sec-p{margin-top:16px}
+.pm-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.pm-list li{
+  font-size:15px;line-height:1.7;color:var(--ink2);
+  padding-left:20px;position:relative;
+}
+.pm-list li::before{content:'→';position:absolute;left:0;color:var(--acc);font-size:13px}
+
+/* image placeholder */
+.pm-img-placeholder{
+  width:100%;aspect-ratio:16/9;
+  border-radius:16px;
+  background:var(--bg2);
+  border:1px dashed var(--bdr2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  margin:32px 0;
+  position:relative;overflow:hidden;
+}
+.pm-img-placeholder::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(196,98,45,.03) 10px,rgba(196,98,45,.03) 20px);
+}
+.pm-img-ph-icon{font-size:32px;opacity:.3}
+.pm-img-ph-text{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:1px;text-transform:uppercase;text-align:center;position:relative}
+.pm-img-ph-hint{font-family:'Geist Mono',monospace;font-size:9px;color:var(--acc);letter-spacing:.5px;position:relative;opacity:.7}
+
+.pm-img-half{
+  display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:32px 0;
+}
+.pm-img-placeholder.small{aspect-ratio:4/3}
+
+/* color swatches in KLYMB */
+.pm-colors{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.pm-color-swatch{
+  width:48px;height:48px;border-radius:10px;
+  border:1px solid var(--bdr);
+  position:relative;cursor:none;
+  transition:transform .2s;
+}
+.pm-color-swatch:hover{transform:scale(1.1)}
+.pm-color-swatch::after{
+  content:attr(data-hex);
+  position:absolute;bottom:-20px;left:50%;transform:translateX(-50%);
+  font-family:'Geist Mono',monospace;font-size:8px;color:var(--ink3);
+  white-space:nowrap;
+}
+
+/* other projects at bottom */
+.pm-other{
+  padding-top:80px;
+  border-top:1px solid var(--bdr);
+  margin-top:32px;
+}
+.pm-other-label{
+  font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:3px;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:32px;
+}
+.pm-other-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+.pm-other-card{
+  padding:24px;background:var(--bg2);
+  border:1px solid var(--bdr);border-radius:16px;
+  cursor:none;transition:all var(--tf);
+  position:relative;overflow:hidden;
+}
+.pm-other-card::before{content:'';position:absolute;inset:0;background:var(--acc2);transform:scaleY(0);transform-origin:bottom;transition:transform .3s cubic-bezier(.16,1,.3,1)}
+.pm-other-card:hover::before{transform:scaleY(1)}
+.pm-other-card:hover{border-color:var(--bdr2);transform:translateY(-3px)}
+.pm-other-card>*{position:relative;z-index:1}
+.pm-oc-idx{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:1px;margin-bottom:12px;display:block}
+.pm-oc-title{font-family:'Instrument Serif',serif;font-size:24px;line-height:1;letter-spacing:-.5px;margin-bottom:6px;transition:color .2s}
+.pm-other-card:hover .pm-oc-title{color:var(--acc)}
+.pm-oc-type{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3)}
+.pm-oc-arr{position:absolute;bottom:24px;right:24px;font-size:18px;color:var(--ink3);transition:transform .2s,color .2s}
+.pm-other-card:hover .pm-oc-arr{transform:translate(3px,-3px);color:var(--acc)}
+
+/* ════════════════════════════════════════
+   EXPERIENCE MODAL
+════════════════════════════════════════ */
+.exp-modal-ov{
+  display:none;position:fixed;inset:0;
+  background:rgba(10,8,6,.7);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  z-index:800;
+  padding:40px 20px;
+  overflow-y:auto;
+  align-items:flex-start;justify-content:center;
+}
+.exp-modal-ov.show{display:flex}
+.exp-modal{
+  background:var(--bg);
+  border:1px solid var(--bdr);
+  border-radius:24px;
+  width:100%;max-width:720px;
+  padding:52px;
+  margin:auto;
+  position:relative;
+  animation:modalin .5s cubic-bezier(.16,1,.3,1);
+}
+@keyframes modalin{from{opacity:0;transform:translateY(32px) scale(.97)}to{opacity:1;transform:none}}
+.exp-modal-close{
+  position:absolute;top:24px;right:24px;
+  width:40px;height:40px;border-radius:50%;
+  background:var(--bg2);border:1px solid var(--bdr);
+  color:var(--ink2);font-size:16px;cursor:none;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--tf);
+}
+.exp-modal-close:hover{border-color:var(--bdr2);color:var(--acc)}
+
+/* logo placeholder in exp modal */
+.em-logo{
+  width:56px;height:56px;border-radius:14px;
+  background:var(--bg2);border:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;margin-bottom:20px;
+  /* replace with: background-image:url(logo.png);background-size:cover */
+}
+.em-label{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.em-title{font-family:'Instrument Serif',serif;font-size:clamp(28px,5vw,40px);line-height:1;letter-spacing:-1px;margin-bottom:6px}
+.em-sub{font-family:'Geist Mono',monospace;font-size:12px;color:var(--ink2);margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid var(--bdr);letter-spacing:.5px}
+.em-body{display:flex;flex-direction:column;gap:24px}
+.em-block h4{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+.em-block p{font-size:14px;line-height:1.8;color:var(--ink2)}
+.em-block ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+.em-block li{font-size:14px;line-height:1.7;color:var(--ink2);padding-left:18px;position:relative}
+.em-block li::before{content:'→';position:absolute;left:0;color:var(--acc);font-size:12px}
+.em-nums{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.mn{padding:16px 20px;background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;display:flex;flex-direction:column;gap:4px;min-width:90px}
+.mn .nv{font-family:'Instrument Serif',serif;font-size:28px;color:var(--acc)}
+.mn .nl{font-family:'Geist Mono',monospace;font-size:10px;color:var(--ink3);letter-spacing:.5px}
+
+/* ════════════════════════════════════════
+   KO-FI POPUP
+════════════════════════════════════════ */
+.kofi-popup {
+  position:fixed;bottom:96px;right:32px;z-index:599;
+  background:var(--surface);
+  border:1px solid var(--bdr);
+  border-radius:16px;
+  padding:14px 16px;
+  width:220px;
+  box-shadow:0 12px 40px rgba(0,0,0,.1),0 2px 8px rgba(0,0,0,.04);
+  opacity:0;
+  transform:translateY(8px);
+  transition:opacity .4s cubic-bezier(.16,1,.3,1), transform .4s cubic-bezier(.16,1,.3,1);
+  pointer-events:none;
+}
+[data-theme="dark"] .kofi-popup{box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.kofi-popup.show{opacity:1;transform:translateY(0);pointer-events:all;}
+.kofi-popup-close{
+  position:absolute;top:8px;right:10px;
+  background:none;border:none;cursor:none;
+  color:var(--ink3);font-size:12px;line-height:1;
+  padding:2px 4px;transition:color var(--tf);
+}
+.kofi-popup-close:hover{color:var(--ink)}
+.kofi-popup p{
+  font-family:'Geist',sans-serif;
+  font-size:12px;line-height:1.6;
+  color:var(--ink2);
+  margin:0;
+  padding-right:12px;
+}
+.kofi-popup p span{color:var(--acc);}
+.kofi-popup-arrow{
+  position:absolute;bottom:-6px;right:22px;
+  width:10px;height:10px;
+  background:var(--surface);
+  border-right:1px solid var(--bdr);
+  border-bottom:1px solid var(--bdr);
+  transform:rotate(45deg);
+}
+.kofi-float {
+  position:fixed;bottom:32px;right:32px;z-index:600;
+  width:52px;height:52px;border-radius:50%;
+  background:#FF5C00;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 24px rgba(255,92,0,.35);cursor:none;
+  transition:transform var(--tf),box-shadow var(--tf);
+  opacity:0;animation:fadeup .6s 2s forwards;
+  text-decoration:none;
+}
+.kofi-float:hover{transform:translateY(-3px) scale(1.08);box-shadow:0 12px 32px rgba(255,92,0,.45)}
+.kofi-float svg{width:26px;height:26px;fill:#fff}
+.kofi-tip{position:absolute;right:calc(100% + 10px);top:50%;transform:translateY(-50%) translateX(6px);background:var(--ink);color:var(--bg);font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border-radius:100px;white-space:nowrap;opacity:0;pointer-events:none;transition:all var(--tf)}
+.kofi-float:hover .kofi-tip{opacity:1;transform:translateY(-50%) translateX(0)}
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+footer{border-top:1px solid var(--bdr);padding:28px 64px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.ft{font-family:'Geist Mono',monospace;font-size:11px;color:var(--ink3);letter-spacing:.3px}
+.ft span{color:var(--acc)}
+
+/* ════════════════════════════════════════
+   REVEAL
+════════════════════════════════════════ */
+.rv{opacity:0;transform:translateY(28px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1)}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}.rv.d4{transition-delay:.4s}
+.rv.in{opacity:1;transform:none}
+
+/* ════════════════════════════════════════
+   KEYFRAMES
+════════════════════════════════════════ */
+@keyframes fadeup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes slideup{from{opacity:0;transform:translateY(60px)}to{opacity:1;transform:none}}
+
+/* ════════════════════════════════════════
+   RESPONSIVE
+════════════════════════════════════════ */
+@media(max-width:1200px){
+  #s-hero{grid-template-columns:1fr 400px;column-gap:28px}
+}
+@media(max-width:960px){
+  .scene{padding:60px 28px 110px}
+  #s-hero{
+    grid-template-columns:1fr;
+    grid-template-rows:auto auto;
+    row-gap:48px;
+    padding-bottom:140px;
+  }
+  .hero-right{
+    grid-column:1;
+    display:flex;
+    opacity:0;animation:fadeup .9s 1s forwards;
+  }
+  .hero-cards{
+    height:480px;
+  }
+  .fcard-music   { width:200px; top:0;    left:0;   }
+  .fcard-building{ width:185px; top:10px; right:0;  }
+  .fcard-tools   { width:175px; top:185px;left:20px;}
+  .fcard-location{ width:175px; top:190px;right:10px;}
+  .fcard-mood    { width:185px; top:360px;left:5px; }
+  .fcard-open    { width:165px; top:360px;right:15px;}
+  .phil-grid{grid-template-columns:1fr;gap:48px}
+  .tl-item{grid-template-columns:1fr;gap:6px}
+  .tl-date{padding-top:0}
+  .avail{top:24px;right:28px;font-size:9px;padding:6px 12px}
+  .scroll-nudge{display:none}
+  footer{padding:24px 28px;flex-direction:column;gap:8px;text-align:center}
+  .pm-inner{padding:80px 28px 100px}
+  .pm-other-grid{grid-template-columns:1fr}
+  .pm-img-half{grid-template-columns:1fr}
+  .exp-modal{padding:32px 24px}
+  .pm-close{top:16px;right:16px}
+}
+@media(max-width:600px){
+  .scene{padding:56px 20px 100px}
+  #s-hero{row-gap:36px}
+  .hero-name{letter-spacing:-2px}
+  .hero-cards{
+    height:460px;
+  }
+  .fcard-music   { width:175px; top:0;    left:0;   transform:rotate(-1.5deg); }
+  .fcard-building{ width:168px; top:8px;  right:0;  transform:rotate(1.5deg); }
+  .fcard-tools   { width:160px; top:170px;left:10px;transform:rotate(1deg); }
+  .fcard-location{ width:160px; top:175px;right:5px;transform:rotate(-1.2deg); }
+  .fcard-mood    { width:168px; top:335px;left:0;   transform:rotate(1.8deg); }
+  .fcard-open    { width:155px; top:340px;right:10px;transform:rotate(-1deg); }
+  .fcard{padding:14px 15px}
+  .fc-building-name{font-size:15px}
+  .fc-loc-city{font-size:14px}
+  .pj{grid-template-columns:32px 1fr auto;gap:16px}
+  .pj-title{font-size:clamp(22px,6vw,40px)}
+  .contact-big{letter-spacing:-2px}
+  .pm-stats{flex-direction:column}
+  .pm-other-grid{grid-template-columns:1fr}
+  footer{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+
+<!-- ════════════════════════════════════════
+     PROJECT FULLSCREEN MODALS
+════════════════════════════════════════ -->
+
+<!-- KLYMB -->
+<div class="proj-modal-ov" id="pm-klymb">
+  <button class="pm-close" onclick="closeProjModal('pm-klymb')">✕</button>
+  <div class="pm-inner">
+    <div class="pm-meta">Case Study · 2026 · Ongoing</div>
+    <h1 class="pm-title">KLYMB</h1>
+    <div class="pm-sub">Product Designer · Founding Team · Fitness & Lifestyle App</div>
+
+    <div class="pm-stats">
+      <div class="pm-stat"><span class="pm-stat-val">01</span><span class="pm-stat-lbl">Founding Designer</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">Mar '26</span><span class="pm-stat-lbl">Started</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">↗</span><span class="pm-stat-lbl">In Development</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">2026</span><span class="pm-stat-lbl">Target Launch</span></div>
+    </div>
+
+    <div class="pm-body">
+
+      <div class="pm-section">
+        <div class="pm-sec-label">01 · Problem</div>
+        <h2 class="pm-sec-h">Fitness apps feel like homework.</h2>
+        <p class="pm-sec-p">Most fitness apps fall into one of two failure modes — either they're too clinical (dashboards that look like hospital software) or too gamified (XP bars and streaks that make you feel guilty the moment you skip a day). Neither one makes you want to open the app at 7am when motivation is at zero.</p>
+        <p class="pm-sec-p">KLYMB is built around a different question: what would a fitness app look like if it was designed for the days you <em>almost</em> didn't open it?</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">02 · My Role</div>
+        <h2 class="pm-sec-h">From zero to product.</h2>
+        <p class="pm-sec-p">I joined KLYMB as a founding team member and Product Designer. There was no existing design system, no brand, no UI — just an idea and a whiteboard. Everything you see is built from scratch.</p>
+        <ul class="pm-list" style="margin-top:20px">
+          <li>Full App UI — onboarding flows, daily tracking, progress screens</li>
+          <li>Share Cards — a social accountability feature I conceived and designed</li>
+          <li>Icon System — custom iconography for all activity categories</li>
+          <li>Avatar Illustrations — personalised user avatar set</li>
+          <li>Brand Identity — logo, typography, color system</li>
+          <li>Web UI — marketing website concept (not yet shipped)</li>
+          <li>Product Strategy — contributing to feature decisions and roadmap</li>
+        </ul>
+
+        <div class="pm-img-placeholder" style="margin-top:32px">
+          <div class="pm-img-ph-icon">📱</div>
+          <div class="pm-img-ph-text">App UI Screens — Onboarding & Home</div>
+          <div class="pm-img-ph-hint">→ Replace with: screenshot of your onboarding flow or home screen</div>
+        </div>
+        <div class="pm-img-half">
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">🃏</div>
+            <div class="pm-img-ph-text">Share Cards</div>
+            <div class="pm-img-ph-hint">→ Replace with: share card designs</div>
+          </div>
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">🎨</div>
+            <div class="pm-img-ph-text">Icon System</div>
+            <div class="pm-img-ph-hint">→ Replace with: icon grid screenshot</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">03 · Design System</div>
+        <h2 class="pm-sec-h">Dark by default. Crimson on black.</h2>
+        <p class="pm-sec-p">The color system was designed to feel premium, high-energy, and personal — dark backgrounds that make the interface recede, leaving only your data and progress front and center. The crimson gradient serves as the single energetic signal: CTAs, active states, streaks.</p>
+        <div class="pm-colors" style="margin-top:24px;padding-bottom:24px">
+          <div class="pm-color-swatch" style="background:linear-gradient(135deg,#B3001B,#FF375F)" data-hex="Primary"></div>
+          <div class="pm-color-swatch" style="background:#080808" data-hex="Page BG"></div>
+          <div class="pm-color-swatch" style="background:#0d0d0d" data-hex="Card"></div>
+          <div class="pm-color-swatch" style="background:#E8F4F8" data-hex="Ice White"></div>
+          <div class="pm-color-swatch" style="background:#FF4D6A" data-hex="Workout"></div>
+          <div class="pm-color-swatch" style="background:#9B72F5" data-hex="Sleep"></div>
+          <div class="pm-color-swatch" style="background:#22D49A" data-hex="Nutrition"></div>
+          <div class="pm-color-swatch" style="background:#2FE1FF" data-hex="Hydration"></div>
+        </div>
+        <p class="pm-sec-p">Each habit category has its own color — workout, sleep, nutrition, hydration, mind, leagues — so at a glance you can see your whole day in one ring chart without reading a single label.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">04 · The Insight</div>
+        <h2 class="pm-sec-h">Design for the low-motivation moment.</h2>
+        <p class="pm-sec-p">Every screen was stress-tested for the hardest moment — not when you're motivated and energized, but when you barely picked up your phone. That meant reducing friction to near zero: one-tap logging, no onboarding friction after day one, progress that feels good even when it's incomplete.</p>
+        <p class="pm-sec-p">The Share Cards feature came from a specific observation: people screenshot their progress and send it to friends anyway. Why not make that intentional? A designed artifact that's worth sharing — not just a data dump.</p>
+        <div class="pm-img-placeholder">
+          <div class="pm-img-ph-icon">✦</div>
+          <div class="pm-img-ph-text">Avatar System & Brand Assets</div>
+          <div class="pm-img-ph-hint">→ Replace with: avatar sheet or brand guidelines screenshot</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="pm-other">
+      <div class="pm-other-label">Other Projects</div>
+      <div class="pm-other-grid">
+        <div class="pm-other-card" onclick="closeProjModal('pm-klymb');setTimeout(()=>openProjModal('pm-rivant'),300)">
+          <span class="pm-oc-idx">02</span>
+          <div class="pm-oc-title">RIVANT Media</div>
+          <div class="pm-oc-type">Agency Website · Brand Identity</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-klymb');setTimeout(()=>openProjModal('pm-wojewodka'),300)">
+          <span class="pm-oc-idx">03</span>
+          <div class="pm-oc-title">Wojewodka Law</div>
+          <div class="pm-oc-type">Law Firm Website · Freelance</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-klymb');setTimeout(()=>openProjModal('pm-ropan'),300)">
+          <span class="pm-oc-idx">04</span>
+          <div class="pm-oc-title">Ropan Yoga</div>
+          <div class="pm-oc-type">Brand Identity · Web Design</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIVANT -->
+<div class="proj-modal-ov" id="pm-rivant">
+  <button class="pm-close" onclick="closeProjModal('pm-rivant')">✕</button>
+  <div class="pm-inner">
+    <div class="pm-meta">Case Study · Jul – Sep 2024 · Shipped</div>
+    <h1 class="pm-title">RIVANT Media</h1>
+    <div class="pm-sub">UI/UX Intern · Design Agency Website · Brand Identity</div>
+
+    <div class="pm-stats">
+      <div class="pm-stat"><span class="pm-stat-val">3mo</span><span class="pm-stat-lbl">Duration</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">✓</span><span class="pm-stat-lbl">Shipped & Live</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">2024</span><span class="pm-stat-lbl">Year</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">01</span><span class="pm-stat-lbl">First Real Job</span></div>
+    </div>
+
+    <div class="pm-body">
+
+      <div class="pm-section">
+        <div class="pm-sec-label">01 · Context</div>
+        <h2 class="pm-sec-h">The toughest client is a design agency.</h2>
+        <p class="pm-sec-p">RIVANT Media is a Mumbai-based creative and design agency. When I joined as a UI/UX Intern in June 2024, they needed a new website — one that actually reflected the quality of work they were producing for clients. Designing for designers is the highest-pressure creative brief there is. Every decision gets scrutinized by people who do this for a living.</p>
+        <p class="pm-sec-p">This was also my first real-world design project — three months into truly understanding what UI/UX meant. The stakes felt enormous.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">02 · The Problem</div>
+        <h2 class="pm-sec-h">The brand had outgrown its website.</h2>
+        <p class="pm-sec-p">RIVANT's existing online presence didn't match the calibre of their client work. They were producing high-quality creative for brands but their own website didn't reflect that identity. The challenge was to build a website that could stand next to their portfolio — and ideally, make people excited to reach out.</p>
+        <p class="pm-sec-p">Simultaneously, the agency was going through a brand identity refresh. My work had to be consistent with that evolving brand direction, which meant working closely with the graphic design team throughout.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">03 · What I Did</div>
+        <h2 class="pm-sec-h">End-to-end — from whiteboard to handoff.</h2>
+        <ul class="pm-list">
+          <li>Collaborated with graphic designers on brand identity elements</li>
+          <li>Built full website wireframes — information architecture and user flows</li>
+          <li>Designed high-fidelity UI in Figma, from landing page to team page</li>
+          <li>Planned motion design and animation sequences for key interactions</li>
+          <li>Worked directly with developers through the implementation phase</li>
+          <li>Designed social media assets aligned to the new brand identity</li>
+        </ul>
+
+        <div class="pm-img-placeholder" style="margin-top:32px">
+          <div class="pm-img-ph-icon">🌐</div>
+          <div class="pm-img-ph-text">Website UI — Landing Page</div>
+          <div class="pm-img-ph-hint">→ Replace with: screenshot from rivant.in or your Figma frames</div>
+        </div>
+        <div class="pm-img-half">
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">📐</div>
+            <div class="pm-img-ph-text">Wireframes</div>
+            <div class="pm-img-ph-hint">→ Replace with: wireframe screens</div>
+          </div>
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">✦</div>
+            <div class="pm-img-ph-text">Brand Identity Assets</div>
+            <div class="pm-img-ph-hint">→ Replace with: brand elements</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">04 · The Turning Point</div>
+        <h2 class="pm-sec-h">When a developer flags your animation.</h2>
+        <p class="pm-sec-p">Midway through the project, a developer flagged that one of my hero animations would drop frames on mobile devices. My first instinct was to push back — the animation was intentional, it was the centrepiece of the landing page interaction. But I sat with it, understood the constraint, and redesigned the sequence to achieve the same visual impact at a fraction of the performance cost.</p>
+        <p class="pm-sec-p">That was the moment performance became a genuine design constraint for me — not just a developer problem to be handed back. I didn't know it then, but it's the lesson I've applied to every project since.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">05 · Live Site</div>
+        <h2 class="pm-sec-h">It's out there. It ships.</h2>
+        <p class="pm-sec-p">The website is live at <a href="https://rivant.in/" target="_blank" style="color:var(--acc);border-bottom:1px solid var(--bdr2)">rivant.in</a> — go see it. It has changed since I shipped it (agencies iterate on their own stuff too), but the bones of the layout and the core interaction philosophy are still mine.</p>
+      </div>
+
+    </div>
+
+    <div class="pm-other">
+      <div class="pm-other-label">Other Projects</div>
+      <div class="pm-other-grid">
+        <div class="pm-other-card" onclick="closeProjModal('pm-rivant');setTimeout(()=>openProjModal('pm-klymb'),300)">
+          <span class="pm-oc-idx">01</span>
+          <div class="pm-oc-title">KLYMB</div>
+          <div class="pm-oc-type">Fitness App · Startup · Founding Team</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-rivant');setTimeout(()=>openProjModal('pm-wojewodka'),300)">
+          <span class="pm-oc-idx">03</span>
+          <div class="pm-oc-title">Wojewodka Law</div>
+          <div class="pm-oc-type">Law Firm Website · Poland · Freelance</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-rivant');setTimeout(()=>openProjModal('pm-ropan'),300)">
+          <span class="pm-oc-idx">04</span>
+          <div class="pm-oc-title">Ropan Yoga</div>
+          <div class="pm-oc-type">Brand Identity · Web Design</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WOJEWODKA -->
+<div class="proj-modal-ov" id="pm-wojewodka">
+  <button class="pm-close" onclick="closeProjModal('pm-wojewodka')">✕</button>
+  <div class="pm-inner">
+    <div class="pm-meta">Case Study · Nov – Dec 2024 · Delivered</div>
+    <h1 class="pm-title">Wojewodka<br>Law Firm</h1>
+    <div class="pm-sub">Freelance Designer · Law Firm Website · Warsaw, Poland</div>
+
+    <div class="pm-stats">
+      <div class="pm-stat"><span class="pm-stat-val">2mo</span><span class="pm-stat-lbl">Duration</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">✓</span><span class="pm-stat-lbl">Live</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">PL</span><span class="pm-stat-lbl">Poland · Remote</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">11+</span><span class="pm-stat-lbl">Years Outdated</span></div>
+    </div>
+
+    <div class="pm-body">
+
+      <div class="pm-section">
+        <div class="pm-sec-label">01 · The Brief</div>
+        <h2 class="pm-sec-h">An 11-year-old WordPress site for a law firm that had outgrown it.</h2>
+        <p class="pm-sec-p">Wojewodka is a law firm based in Warsaw, Poland. When they reached out to me via Behance, their brief was simple and honest: the website is over 11 years old, built on an outdated WordPress template, and it no longer reflects what the firm actually is. They needed something that looked as professional as their work.</p>
+        <p class="pm-sec-p">This was my first international freelance project — fully remote, cross-timezone, and entirely solo. No manager, no senior to ask, just me and a client on the other side of the world.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">02 · The Problem</div>
+        <h2 class="pm-sec-h">Trust is everything in law. The website was breaking it.</h2>
+        <p class="pm-sec-p">Law firm websites are trust artifacts. Before a potential client picks up the phone, they've already decided whether they trust you — based entirely on how your website looks. An outdated design doesn't just look bad, it signals to visitors that the firm doesn't pay attention to detail. For a law firm, that's a fatal signal.</p>
+        <p class="pm-sec-p">The design needed to communicate three things immediately: authority, precision, and approachability. Formal enough to be credible, clean enough to be accessible.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">03 · What I Delivered</div>
+        <h2 class="pm-sec-h">Full website — from discovery to developer handoff.</h2>
+        <ul class="pm-list">
+          <li>Discovery calls to understand the firm's positioning, clients, and practice areas</li>
+          <li>Competitive analysis of other European law firm websites</li>
+          <li>Sitemap and information architecture — organising their services clearly</li>
+          <li>Full Figma wireframes through to high-fidelity UI</li>
+          <li>Responsive design for desktop, tablet, and mobile</li>
+          <li>Final developer handoff with annotated specs</li>
+        </ul>
+
+        <div class="pm-img-placeholder" style="margin-top:32px">
+          <div class="pm-img-ph-icon">⚖️</div>
+          <div class="pm-img-ph-text">Website UI — Landing Page</div>
+          <div class="pm-img-ph-hint">→ Replace with: screenshot from wojewodka.eu or your Figma</div>
+        </div>
+        <div class="pm-img-half">
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">📋</div>
+            <div class="pm-img-ph-text">Practice Areas Page</div>
+            <div class="pm-img-ph-hint">→ Replace with: services page screenshot</div>
+          </div>
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">📱</div>
+            <div class="pm-img-ph-text">Mobile Responsive</div>
+            <div class="pm-img-ph-hint">→ Replace with: mobile mockup</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">04 · Working Solo, Internationally</div>
+        <h2 class="pm-sec-h">No safety net. No timezone overlap.</h2>
+        <p class="pm-sec-p">This project taught me something no internship could — what it's actually like to be the only person accountable for a client's outcome. When the client had feedback at midnight Warsaw time, I needed to have a considered response the next morning. When scope started to creep, I had to hold the boundary. When I wasn't sure about a direction, I made the call and owned it.</p>
+        <p class="pm-sec-p">Cross-cultural communication was also a real skill here. Working with a client in Poland, navigating legal terminology in a language that wasn't either of ours natively, and building trust entirely through async communication — that's not something you practice in a classroom.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">05 · Live Site</div>
+        <h2 class="pm-sec-h">See it live.</h2>
+        <p class="pm-sec-p">The website is live at <a href="https://wojewodka.eu/en/" target="_blank" style="color:var(--acc);border-bottom:1px solid var(--bdr2)">wojewodka.eu</a>. Due to contract and privacy terms, I wasn't able to publish a detailed case study on Behance — but the work speaks for itself.</p>
+      </div>
+
+    </div>
+
+    <div class="pm-other">
+      <div class="pm-other-label">Other Projects</div>
+      <div class="pm-other-grid">
+        <div class="pm-other-card" onclick="closeProjModal('pm-wojewodka');setTimeout(()=>openProjModal('pm-klymb'),300)">
+          <span class="pm-oc-idx">01</span>
+          <div class="pm-oc-title">KLYMB</div>
+          <div class="pm-oc-type">Fitness App · Startup · Founding Team</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-wojewodka');setTimeout(()=>openProjModal('pm-rivant'),300)">
+          <span class="pm-oc-idx">02</span>
+          <div class="pm-oc-title">RIVANT Media</div>
+          <div class="pm-oc-type">Agency Website · Brand Identity</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-wojewodka');setTimeout(()=>openProjModal('pm-ropan'),300)">
+          <span class="pm-oc-idx">04</span>
+          <div class="pm-oc-title">Ropan Yoga</div>
+          <div class="pm-oc-type">Brand Identity · Web Design</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ROPAN YOGA -->
+<div class="proj-modal-ov" id="pm-ropan">
+  <button class="pm-close" onclick="closeProjModal('pm-ropan')">✕</button>
+  <div class="pm-inner">
+    <div class="pm-meta">Case Study · Jun – Jul 2024 · Completed</div>
+    <h1 class="pm-title">Ropan Yoga</h1>
+    <div class="pm-sub">UI/UX Intern @ RIVANT Media · Brand Identity · Responsive Web Design</div>
+
+    <div class="pm-stats">
+      <div class="pm-stat"><span class="pm-stat-val">~2mo</span><span class="pm-stat-lbl">Duration</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">✓</span><span class="pm-stat-lbl">Completed</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">Behance</span><span class="pm-stat-lbl">Published</span></div>
+      <div class="pm-stat"><span class="pm-stat-val">01</span><span class="pm-stat-lbl">First Real Project</span></div>
+    </div>
+
+    <div class="pm-body">
+
+      <div class="pm-section">
+        <div class="pm-sec-label">01 · Context</div>
+        <h2 class="pm-sec-h">The first real project. Zero experience, full delivery.</h2>
+        <p class="pm-sec-p">Ropan Yoga was my very first real-world design project — the one where everything I'd learned in theory had to actually work. It was a collaborative project during my internship at RIVANT Media, working alongside other designers who handled the brand identity while I took ownership of the responsive website design.</p>
+        <p class="pm-sec-p">The project is published on Behance as a collaboration — not my brand identity, but my website designs. That's the honest version of how collaboration works, and it's the one I'm proud of.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">02 · The Challenge</div>
+        <h2 class="pm-sec-h">Translating brand identity into a website that breathes.</h2>
+        <p class="pm-sec-p">Yoga brand design has a very specific visual language — calm, organic, grounded. The challenge was to take a brand identity that my collaborators were developing simultaneously and build website designs that felt like a natural extension of it, not a disconnected afterthought.</p>
+        <p class="pm-sec-p">This meant having real design conversations — about how type choices translate from a logo to a full-page layout, how color ratios change between print assets and screen, how a brand's "feeling" needs to survive the translation to responsive breakpoints.</p>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">03 · What I Designed</div>
+        <h2 class="pm-sec-h">Responsive website — every breakpoint, every screen.</h2>
+        <ul class="pm-list">
+          <li>Full website UI designed in Figma — desktop, tablet, mobile</li>
+          <li>Homepage, About, Classes, Schedule, and Contact pages</li>
+          <li>Component system consistent with the brand identity</li>
+          <li>Micro-interactions and hover states for key elements</li>
+          <li>Collaborative reviews with brand identity team throughout</li>
+        </ul>
+
+        <div class="pm-img-placeholder" style="margin-top:32px">
+          <div class="pm-img-ph-icon">🧘</div>
+          <div class="pm-img-ph-text">Responsive Website Designs</div>
+          <div class="pm-img-ph-hint">→ Replace with: Behance case study screenshot or Figma export</div>
+        </div>
+        <div class="pm-img-half">
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">🖥️</div>
+            <div class="pm-img-ph-text">Desktop View</div>
+            <div class="pm-img-ph-hint">→ Replace with: desktop screen</div>
+          </div>
+          <div class="pm-img-placeholder small">
+            <div class="pm-img-ph-icon">📱</div>
+            <div class="pm-img-ph-text">Mobile View</div>
+            <div class="pm-img-ph-hint">→ Replace with: mobile screen</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pm-section">
+        <div class="pm-sec-label">04 · What This Project Was</div>
+        <h2 class="pm-sec-h">Proof that real collaboration is harder than solo work.</h2>
+        <p class="pm-sec-p">The biggest lesson here wasn't technical — it was collaborative. When you work alongside other designers, your work doesn't exist in isolation. Every decision I made on the website had to stay honest to what the brand team was building, and vice versa. That back-and-forth is a skill. It's also what makes the output better.</p>
+        <p class="pm-sec-p">View the full project on <a href="https://www.behance.net/gallery/202774063/Ropan-Yoga-Brand-Identity" target="_blank" style="color:var(--acc);border-bottom:1px solid var(--bdr2)">Behance →</a></p>
+      </div>
+
+    </div>
+
+    <div class="pm-other">
+      <div class="pm-other-label">Other Projects</div>
+      <div class="pm-other-grid">
+        <div class="pm-other-card" onclick="closeProjModal('pm-ropan');setTimeout(()=>openProjModal('pm-klymb'),300)">
+          <span class="pm-oc-idx">01</span>
+          <div class="pm-oc-title">KLYMB</div>
+          <div class="pm-oc-type">Fitness App · Startup · Founding Team</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-ropan');setTimeout(()=>openProjModal('pm-rivant'),300)">
+          <span class="pm-oc-idx">02</span>
+          <div class="pm-oc-title">RIVANT Media</div>
+          <div class="pm-oc-type">Agency Website · Brand Identity</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+        <div class="pm-other-card" onclick="closeProjModal('pm-ropan');setTimeout(()=>openProjModal('pm-wojewodka'),300)">
+          <span class="pm-oc-idx">03</span>
+          <div class="pm-oc-title">Wojewodka Law</div>
+          <div class="pm-oc-type">Law Firm Website · Poland · Freelance</div>
+          <span class="pm-oc-arr">↗</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     EXPERIENCE MODALS
+════════════════════════════════════════ -->
+
+<!-- KLYMB Experience -->
+<div class="exp-modal-ov" id="em-klymb">
+  <div class="exp-modal">
+    <button class="exp-modal-close" onclick="closeExpModal('em-klymb')">✕</button>
+    <div class="em-logo">🏔️<!-- Replace: <img src="klymb-logo.png" style="width:100%;height:100%;object-fit:contain;border-radius:10px"> --></div>
+    <div class="em-label">Mar 2026 – Present · Ongoing</div>
+    <h2 class="em-title">Product Designer</h2>
+    <div class="em-sub">KLYMB · Founding Team · Fitness & Lifestyle App</div>
+    <div class="em-body">
+      <div class="em-block">
+        <h4>What I'm building</h4>
+        <p>Designing a fitness and lifestyle app from ground zero — not as an intern or a contractor, but as a founding team member. I own the entire design surface: app UI, brand, iconography, share cards, avatars, and the product vision around it all.</p>
+      </div>
+      <div class="em-block">
+        <h4>Projects</h4>
+        <ul>
+          <li>Full App UI — onboarding to daily tracking flows</li>
+          <li>Share Cards — social accountability feature (my concept)</li>
+          <li>Custom icon system and avatar illustration set</li>
+          <li>Brand identity — logo, color system, typography</li>
+          <li>Web UI concept (not yet shipped)</li>
+        </ul>
+      </div>
+      <div class="em-block">
+        <h4>What I'm learning</h4>
+        <p>What it means to design with zero net — no brief template, no senior feedback loop, no design review. Every decision sticks. I'm also learning how to contribute to product strategy, not just execute it.</p>
+      </div>
+      <div class="em-nums">
+        <div class="mn"><span class="nv">01</span><span class="nl">Founding Designer</span></div>
+        <div class="mn"><span class="nv">↗</span><span class="nl">In Dev</span></div>
+        <div class="mn"><span class="nv">2026</span><span class="nl">Started</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Freelance Experience -->
+<div class="exp-modal-ov" id="em-freelance">
+  <div class="exp-modal">
+    <button class="exp-modal-close" onclick="closeExpModal('em-freelance')">✕</button>
+    <div class="em-logo">🌐<!-- Replace: your own icon or remove --></div>
+    <div class="em-label">Nov 2024 – Mar 2025 · 5 months</div>
+    <h2 class="em-title">Freelance Designer</h2>
+    <div class="em-sub">Independent · Remote · International Clients</div>
+    <div class="em-body">
+      <div class="em-block">
+        <h4>How it started</h4>
+        <p>After my internship I built a Behance portfolio and waited. A client reached out within weeks — a law firm in Poland. Then a second project followed. Two complete websites, managed entirely solo — no manager, no brief template, no senior to escalate to.</p>
+      </div>
+      <div class="em-block">
+        <h4>Projects</h4>
+        <ul>
+          <li>Wojewodka Law Firm — full website UI, Warsaw, Poland (Nov–Dec 2024)</li>
+          <li>Rootelinvestree — design system + pages (Jan–Mar 2025)</li>
+        </ul>
+      </div>
+      <div class="em-block">
+        <h4>What I actually learned</h4>
+        <p>Client management is a design skill. Discovery calls, scope definition, revision cycles, pushing back on feedback diplomatically — none of that is taught in design school. I learned it in real time, with real money on the line, across time zones.</p>
+      </div>
+      <div class="em-block">
+        <h4>The hard lesson</h4>
+        <p>Not every project ends perfectly. One client wasn't fully satisfied with my work — and sitting with that, understanding why, and extracting the honest feedback rather than dismissing it was one of the most valuable experiences I've had. It changed how I run discovery calls. It changed how I communicate early-stage directions. Failure, when it's honest, is a better teacher than success.</p>
+      </div>
+      <div class="em-nums">
+        <div class="mn"><span class="nv">2</span><span class="nl">Clients</span></div>
+        <div class="mn"><span class="nv">5mo</span><span class="nl">Duration</span></div>
+        <div class="mn"><span class="nv">Behance</span><span class="nl">How they found me</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIVANT Internship Experience -->
+<div class="exp-modal-ov" id="em-rivant">
+  <div class="exp-modal">
+    <button class="exp-modal-close" onclick="closeExpModal('em-rivant')">✕</button>
+    <div class="em-logo">✦<!-- Replace: <img src="rivant-logo.png" ...> --></div>
+    <div class="em-label">Jun 2024 – Sep 2024 · 4 months</div>
+    <h2 class="em-title">UI/UX Intern</h2>
+    <div class="em-sub">RIVANT Media · Creative Design Agency · Mumbai</div>
+    <div class="em-body">
+      <div class="em-block">
+        <h4>The environment</h4>
+        <p>RIVANT Media is a creative and design agency in Mumbai. My first real-world design role — three months into truly understanding what UI/UX meant. I was thrown into production-ready work from day one: real clients, real deadlines, real feedback from people who design for a living.</p>
+      </div>
+      <div class="em-block">
+        <h4>Projects I worked on</h4>
+        <ul>
+          <li>RIVANT Media Website — full website UI and brand identity (Jul–Sep 2024)</li>
+          <li>Ropan Yoga — responsive website design in collaboration with brand identity team (Jun–Jul 2024)</li>
+          <li>Social media design assets for multiple client campaigns</li>
+        </ul>
+      </div>
+      <div class="em-block">
+        <h4>What I took away</h4>
+        <p>Production-ready doesn't mean pixel-perfect in Figma. It means your design survives implementation — developer feedback, performance constraints, client changes, and last-minute scope shifts. I left knowing the difference between a design that looks good and a design that actually ships.</p>
+      </div>
+      <div class="em-nums">
+        <div class="mn"><span class="nv">4mo</span><span class="nl">Duration</span></div>
+        <div class="mn"><span class="nv">2</span><span class="nl">Projects</span></div>
+        <div class="mn"><span class="nv">2024</span><span class="nl">Year</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DOCK -->
+<nav class="dock">
+  <a href="#s-hero"    class="di on"  data-sec="s-hero"><i data-lucide="house"></i><span class="di-tip">Home</span></a>
+  <a href="#s-about"   class="di"    data-sec="s-about"><i data-lucide="brain"></i><span class="di-tip">Thinking</span></a>
+  <a href="#s-work"    class="di"    data-sec="s-work"><i data-lucide="folder"></i><span class="di-tip">Work</span></a>
+  <a href="#s-exp"     class="di"    data-sec="s-exp"><i data-lucide="briefcase"></i><span class="di-tip">Experience</span></a>
+  <a href="#s-contact" class="di"    data-sec="s-contact"><i data-lucide="send"></i><span class="di-tip">Contact</span></a>
+  <div class="d-sep"></div>
+  <button class="d-theme" id="themeBtn" title="Toggle theme"><i data-lucide="moon" id="themeIcon"></i></button>
+</nav>
+
+<!-- ══════════════════════════════════════
+     SCENE 1 · HERO
+══════════════════════════════════════ -->
+<section class="scene" id="s-hero">
+
+  <div class="hero-left">
+    <div class="ch-label" style="animation-delay:.05s">
+      <span class="ch-num">00</span> — Product Designer · Mumbai, India
+    </div>
+    <h1 class="hero-name">
+      <span class="hero-name-line">Ayush</span>
+      <span class="hero-name-line">Warrier.</span>
+    </h1>
+    <div class="hero-role-row">
+      <span class="hero-role">Product Design</span>
+      <span class="hero-dot"></span>
+      <span class="hero-role">UI / UX</span>
+      <span class="hero-dot"></span>
+      <span class="hero-role">Dev-Aware Design</span>
+    </div>
+    <p class="hero-statement">
+      I don't start with screens.<br>
+      I start with <strong>what's broken.</strong>
+    </p>
+    <div class="hero-ctas">
+      <a href="#s-work" class="btn btn-solid">See the work →</a>
+      <a href="#s-contact" class="btn btn-ghost">Say hello</a>
+    </div>
+  </div>
+
+  <!-- RIGHT — floating cards -->
+  <div class="hero-right">
+    <div class="hero-cards">
+
+      <!-- Music card — top left -->
+      <div class="fcard fcard-music">
+        <div class="fc-music-top">
+          <span class="fc-live-dot"></span>
+          <span class="fc-live-label">Now playing</span>
+        </div>
+        <div class="fc-music-body">
+          <div class="fc-album">🎵</div>
+          <div class="fc-track">
+            <div class="fc-track-name">Khat</div>
+            <div class="fc-track-artist">Navjot Ahuja</div>
+          </div>
+          <div class="fc-play">
+            <div class="fc-play-bar">
+              <div class="fc-bar"></div><div class="fc-bar"></div><div class="fc-bar"></div><div class="fc-bar"></div><div class="fc-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Building card — top right -->
+      <div class="fcard fcard-building">
+        <div class="fc-building-label">
+          <span class="fc-pulse"></span>Currently building
+        </div>
+        <div class="fc-building-name">KLYMB</div>
+        <div class="fc-building-role">Product Designer · Founding Team</div>
+        <div class="fc-progress">
+          <div class="fc-prog-label">
+            <span class="fc-prog-text">App progress</span>
+            <span class="fc-prog-pct">68%</span>
+          </div>
+          <div class="fc-prog-track"><div class="fc-prog-fill"></div></div>
+        </div>
+      </div>
+
+      <!-- Tools card — mid left -->
+      <div class="fcard fcard-tools">
+        <div class="fc-tools-label">Works with</div>
+        <div class="fc-tool-chips">
+          <span class="fc-chip">messy problems</span>
+          <span class="fc-chip">half-baked ideas</span>
+          <span class="fc-chip">real constraints</span>
+        </div>
+      </div>
+
+      <!-- Location card — mid right -->
+      <div class="fcard fcard-location">
+        <div class="fc-loc-top">
+          <span class="fc-loc-label">Based in</span>
+          <span class="fc-loc-flag">🇮🇳</span>
+        </div>
+        <div class="fc-loc-city">Mumbai, India</div>
+        <div class="fc-loc-time" id="mumbaiTime">--:-- --</div>
+      </div>
+
+      <!-- Mood card — bottom left -->
+      <div class="fcard fcard-mood">
+        <div class="fc-tools-label">Current mood</div>
+        <div style="font-family:'Instrument Serif',serif;font-size:15px;color:var(--ink);line-height:1.4;margin-top:4px;font-style:italic">"Trying to design something people don't uninstall in 3 days."</div>
+      </div>
+
+      <!-- Offline card — bottom right -->
+      <div class="fcard fcard-open">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:10px">
+          <span style="width:7px;height:7px;border-radius:50%;background:#888;flex-shrink:0;display:inline-block"></span>
+          <span style="font-family:'Geist Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ink3)">Offline</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="display:flex;align-items:center;gap:8px">
+            <i data-lucide="headphones" style="width:14px;height:14px;color:var(--ink3);flex-shrink:0"></i>
+            <span style="font-size:12px;color:var(--ink2);line-height:1.3">music on repeat</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <i data-lucide="bike" style="width:14px;height:14px;color:var(--ink3);flex-shrink:0"></i>
+            <span style="font-size:12px;color:var(--ink2);line-height:1.3">late night rides</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <i data-lucide="tv" style="width:14px;height:14px;color:var(--ink3);flex-shrink:0"></i>
+            <span style="font-size:12px;color:var(--ink2);line-height:1.3">random YouTube rabbit holes</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="avail">
+    <span class="avail-dot"></span>
+    Open to opportunities
+  </div>
+
+  <div class="scroll-nudge">
+    <div class="sn-line"></div>Scroll
+  </div>
+
+</section>
+
+<!-- ══════════════════════════════════════
+     SCENE 2 · PHILOSOPHY
+══════════════════════════════════════ -->
+<section class="scene" id="s-about">
+  <div style="max-width:1100px;margin:0 auto;width:100%">
+    <div class="ch-label rv"><span class="ch-num">01</span> — How I think</div>
+    <div class="phil-grid">
+      <div class="phil-words rv d1">
+        <div class="phil-word">Problem<em>.</em><span class="pw-sub">Always first</span></div>
+        <div class="phil-word"><em>flows</em> next.<span class="pw-sub">Then structure</span></div>
+        <div class="phil-word">pixels<em>.</em> last.<span class="pw-sub">Finally, UI</span></div>
+      </div>
+      <div class="phil-right rv d2">
+        <p class="phil-para">Most designers open Figma and start drawing boxes. I open a doc and write down <strong>what's actually broken</strong> — for real people, in real situations.</p>
+        <p class="phil-para">I also code. Not to compete with engineers, but to <strong>understand the machine</strong> I'm designing for. Knowing how APIs work changes how you design them. Knowing CSS changes how you spec layouts.</p>
+        <p class="phil-para">Two years in. Four real products shipped. One startup from scratch. <strong>Still learning. Always thinking in systems.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SCENE 3 · WORK
+══════════════════════════════════════ -->
+<section class="scene" id="s-work">
+  <div style="max-width:1100px;margin:0 auto;width:100%">
+    <div class="ch-label rv"><span class="ch-num">02</span> — Selected work</div>
+    <p class="work-intro rv d1"><strong>Four projects.</strong> Each one a different problem, a different context, a different version of me.</p>
+    <div class="proj-list rv d2">
+
+      <div class="pj" onclick="openProjModal('pm-klymb')" data-hover>
+        <span class="pj-idx">01</span>
+        <div class="pj-info">
+          <span class="pj-title">KLYMB</span>
+          <span class="pj-type">Fitness & Lifestyle App · Product Design · Startup · 2026</span>
+        </div>
+        <span class="pj-arrow">↗</span>
+      </div>
+
+      <div class="pj" onclick="openProjModal('pm-rivant')" data-hover>
+        <span class="pj-idx">02</span>
+        <div class="pj-info">
+          <span class="pj-title">RIVANT Media</span>
+          <span class="pj-type">Agency Website · UI/UX · Brand Identity · 2024</span>
+        </div>
+        <span class="pj-arrow">↗</span>
+      </div>
+
+      <div class="pj" onclick="openProjModal('pm-wojewodka')" data-hover>
+        <span class="pj-idx">03</span>
+        <div class="pj-info">
+          <span class="pj-title">Wojewodka Law Firm</span>
+          <span class="pj-type">Law Firm Website · Freelance · Poland · 2024</span>
+        </div>
+        <span class="pj-arrow">↗</span>
+      </div>
+
+      <div class="pj" onclick="openProjModal('pm-ropan')" data-hover>
+        <span class="pj-idx">04</span>
+        <div class="pj-info">
+          <span class="pj-title">Ropan Yoga</span>
+          <span class="pj-type">Brand Identity · Responsive Web Design · Collab · 2024</span>
+        </div>
+        <span class="pj-arrow">↗</span>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SCENE 4 · EXPERIENCE
+══════════════════════════════════════ -->
+<section class="scene" id="s-exp">
+  <div style="max-width:1100px;margin:0 auto;width:100%">
+    <div class="ch-label rv"><span class="ch-num">03</span> — Where I've been</div>
+    <p class="exp-statement rv d1">Fresh out of college. But the work was never fake.</p>
+    <div class="tl rv d2">
+
+      <div class="tl-item" onclick="openExpModal('em-klymb')" data-hover>
+        <div class="tl-date">
+          Mar 2026 — Present
+          <div class="tl-now">Now</div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-role">Product Designer</div>
+          <div class="tl-co">KLYMB · Founding Team</div>
+          <div class="tl-one">Designing a fitness & lifestyle app from ground zero — not as an intern, as a founding member.</div>
+          <div class="tl-expand">View details →</div>
+        </div>
+      </div>
+
+      <div class="tl-item" onclick="openExpModal('em-freelance')" data-hover>
+        <div class="tl-date">Nov 2024 — Mar 2025</div>
+        <div class="tl-right">
+          <div class="tl-role">Freelance Designer</div>
+          <div class="tl-co">Independent · Remote</div>
+          <div class="tl-one">Two clients found me on Behance. Two websites shipped. Zero safety net.</div>
+          <div class="tl-expand">View details →</div>
+        </div>
+      </div>
+
+      <div class="tl-item" onclick="openExpModal('em-rivant')" data-hover>
+        <div class="tl-date">Jun 2024 — Sep 2024</div>
+        <div class="tl-right">
+          <div class="tl-role">UI/UX Intern</div>
+          <div class="tl-co">RIVANT Media · Design Agency</div>
+          <div class="tl-one">First real design job. Left knowing what "production-ready" actually means.</div>
+          <div class="tl-expand">View details →</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="skills-wrap rv d3">
+      <div class="skills-title">Things I work with</div>
+      <div class="skill-chips">
+        <span class="chip">Figma</span>
+        <span class="chip">Product Thinking</span>
+        <span class="chip">UI/UX Design</span>
+        <span class="chip">Design Systems</span>
+        <span class="chip">Wireframing</span>
+        <span class="chip">Prototyping</span>
+        <span class="chip">User Research</span>
+        <span class="chip">HTML & CSS</span>
+        <span class="chip">JavaScript</span>
+        <span class="chip">REST APIs</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     SCENE 5 · CONTACT
+══════════════════════════════════════ -->
+<section class="scene" id="s-contact">
+  <div style="max-width:1100px;margin:0 auto;width:100%">
+    <div class="ch-label rv"><span class="ch-num">04</span> — Let's connect</div>
+    <h2 class="contact-big rv d1">
+      Got something<br><em>worth building?</em>
+    </h2>
+    <div class="contact-meta rv d2">
+      <p class="contact-tagline">Final year done. Ready for what's next. If you're building something that needs a designer who actually thinks — I'd love to be in that room.</p>
+    </div>
+    <div class="contact-actions rv d3">
+      <a href="mailto:ayush@email.com" class="btn btn-solid">Say hello →</a>
+      <a href="tel:+910000000000" class="btn btn-ghost"><i data-lucide="phone" style="width:14px;height:14px"></i> +91 00000 00000</a>
+    </div>
+    <div class="soc-row rv d4">
+      <a href="https://linkedin.com/in/ayushwarrier" target="_blank" class="soc">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn
+      </a>
+      <a href="mailto:ayush@email.com" class="soc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>Gmail
+      </a>
+      <a href="https://medium.com/@ayushwarrier" target="_blank" class="soc">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.846 6.887c.03-.295-.083-.586-.303-.784l-2.24-2.7v-.403h6.958l5.378 11.795 4.728-11.795h6.633v.403l-1.916 1.837c-.165.126-.247.333-.213.538v13.498c-.034.204.048.411.213.537l1.871 1.837v.403h-9.412v-.403l1.939-1.882c.19-.19.19-.246.19-.537v-10.91l-5.389 13.688h-.728l-6.275-13.688v9.174c-.052.385.076.774.347 1.052l2.521 3.058v.404h-7.148v-.404l2.521-3.058c.27-.279.39-.67.325-1.052v-10.608z"/></svg>Medium
+      </a>
+      <a href="https://behance.net/ayushwarrier" target="_blank" class="soc">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M22 7h-7v-2h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14h-8.027c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988h-6.466v-14.967h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 8.061-3.207 8.061zm-3.466-8.988h3.584c2.508 0 2.906-3-.312-3h-3.272v3zm3.391 3h-3.391v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/></svg>Behance
+      </a>
+    </div>
+
+    <div class="contact-footer rv" style="margin-top:auto;padding-top:48px;border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <span class="ft">© 2026 Ayush Warrier — All Rights Reserved</span>
+      <span class="ft" style="font-style:italic">Designed & built by me, obviously.</span>
+    </div>
+
+  </div>
+</section>
+
+<!-- KO-FI POPUP -->
+<div class="kofi-popup" id="kofiPopup">
+  <button class="kofi-popup-close" id="kofiPopupClose">✕</button>
+  <p>If something here was worth your time — <span>a coffee goes a long way.</span> No pressure though.</p>
+  <div class="kofi-popup-arrow"></div>
+</div>
+
+<!-- KO-FI FLOAT -->
+<a href="https://ko-fi.com/ayushwarrier" target="_blank" class="kofi-float" title="Support on Ko-fi" data-hover>
+  <span class="kofi-tip">Support me</span>
+  <i data-lucide="coffee" style="width:22px;height:22px;color:#fff;flex-shrink:0"></i>
+</a>
+
+<!-- ════════════════════════════════════════
+     JS
+════════════════════════════════════════ -->
+<script>
+// ── Mumbai live clock ──
+function updateClock(){
+  const el = document.getElementById('mumbaiTime');
+  if(!el) return;
+  const now = new Date();
+  const ist = new Date(now.toLocaleString('en-US',{timeZone:'Asia/Kolkata'}));
+  let h = ist.getHours(), m = ist.getMinutes(), s = ist.getSeconds();
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  h = h % 12 || 12;
+  el.textContent = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ampm} IST`;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+// ── Cursor ──
+const cur = document.getElementById('cur');
+let mx=0, my=0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cur.style.left = mx + 'px';
+  cur.style.top  = my + 'px';
+});
+document.querySelectorAll('[data-hover], a, button, .chip, .phil-word, .tl-item, .kofi-float, .pj, .pm-other-card').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('hov'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('hov'));
+});
+
+// ── Theme ──
+const html = document.documentElement;
+const tBtn = document.getElementById('themeBtn');
+let dark = localStorage.getItem('aw-theme') === 'dark';
+function applyTheme() {
+  html.setAttribute('data-theme', dark ? 'dark' : 'light');
+  tBtn.innerHTML = `<i data-lucide="${dark ? 'sun' : 'moon'}"></i>`;
+  lucide.createIcons({ nodes: [tBtn] });
+}
+applyTheme();
+tBtn.addEventListener('click', () => {
+  dark = !dark;
+  localStorage.setItem('aw-theme', dark ? 'dark' : 'light');
+  applyTheme();
+});
+
+// ── Scroll reveal ──
+const rvEls = document.querySelectorAll('.rv');
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
+}, { threshold: 0.12, rootMargin: '0px 0px -32px 0px' });
+rvEls.forEach(el => ro.observe(el));
+
+// Phil-para reveal
+const philParas = document.querySelectorAll('.phil-para');
+const po = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('vis'); });
+}, { threshold: 0.5 });
+philParas.forEach(p => po.observe(p));
+
+// ── Active dock ──
+const scenes = document.querySelectorAll('.scene[id]');
+const dItems = document.querySelectorAll('.di[data-sec]');
+const so = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      dItems.forEach(d => d.classList.remove('on'));
+      const a = document.querySelector(`.di[data-sec="${e.target.id}"]`);
+      if (a) a.classList.add('on');
+    }
+  });
+}, { threshold: 0.4 });
+scenes.forEach(s => so.observe(s));
+
+// ── Project fullscreen modals ──
+function openProjModal(id) {
+  const ov = document.getElementById(id);
+  if (!ov) return;
+  ov.style.display = 'block';
+  ov.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      ov.classList.add('visible');
+    });
+  });
+}
+function closeProjModal(id) {
+  const ov = document.getElementById(id);
+  if (!ov) return;
+  ov.classList.remove('visible');
+  setTimeout(() => {
+    ov.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 400);
+}
+document.querySelectorAll('.proj-modal-ov').forEach(ov => {
+  ov.addEventListener('keydown', e => { if (e.key === 'Escape') closeProjModal(ov.id); });
+});
+
+// ── Experience modals ──
+function openExpModal(id) {
+  const ov = document.getElementById(id);
+  if (!ov) return;
+  ov.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+function closeExpModal(id) {
+  const ov = document.getElementById(id);
+  if (!ov) return;
+  ov.classList.remove('show');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.exp-modal-ov').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) closeExpModal(ov.id); });
+});
+
+// Global escape key
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  document.querySelectorAll('.proj-modal-ov.visible').forEach(ov => closeProjModal(ov.id));
+  document.querySelectorAll('.exp-modal-ov.show').forEach(ov => closeExpModal(ov.id));
+});
+
+// Cursor on all interactive elements inside modals
+document.querySelectorAll('.pm-close, .exp-modal-close, .pm-other-card, .mn').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('hov'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('hov'));
+});
+
+// ── Ko-fi popup ──
+const kofiPopup = document.getElementById('kofiPopup');
+const kofiPopupClose = document.getElementById('kofiPopupClose');
+let kofiTimer;
+setTimeout(() => {
+  kofiPopup.classList.add('show');
+  kofiTimer = setTimeout(() => kofiPopup.classList.remove('show'), 30000);
+}, 4000);
+kofiPopupClose.addEventListener('click', () => {
+  clearTimeout(kofiTimer);
+  kofiPopup.classList.remove('show');
+});
+kofiPopupClose.addEventListener('mouseenter', () => cur.classList.add('hov'));
+kofiPopupClose.addEventListener('mouseleave', () => cur.classList.remove('hov'));
+
+// ── Init Lucide icons ──
+lucide.createIcons();
+</script>
+
+</body>
+</html>
